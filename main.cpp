@@ -1,6 +1,39 @@
 #include <iostream>
 #include <SDL.h>
+#include <cstdlib>
 using namespace std;
+
+const int buoc = 50;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const string WINDOW_TITLE = "Game snake";
+
+class food{
+private:
+    int x;
+    int y;
+public:
+    food(){
+        x = ramdomPointX();
+        y = ramdomPointY();
+    }
+    int ramdomPointX(){
+        return (rand() % (SCREEN_WIDTH/50))*50;
+    }
+    int ramdomPointY(){
+        return (rand() % (SCREEN_HEIGHT/50))*50;
+    }
+    void newPoint(){
+        x = ramdomPointX();
+        y = ramdomPointY();
+    }
+    int getX(){
+        return x;
+    }
+    int getY(){
+        return y;
+    }
+};
 
 class Snake{
 private:
@@ -20,7 +53,6 @@ public:
         return y;
     }
     void getKey(char key){
-        int buoc = 50;
         if (key == 'u'){
             y -= buoc;
         }else if (key == 'd'){
@@ -31,11 +63,20 @@ public:
             x += buoc;
         }
     }
+    bool checkDie(){
+        if (x >= SCREEN_WIDTH || x < 0 || y >=SCREEN_HEIGHT || y < 0){
+            return false;
+        }
+        return true;
+    }
+    bool eat(food foodSnake){
+        if (foodSnake.getX() == x && foodSnake.getY() == y){
+            size_snake++;
+            return true;
+        }
+        return false;
+    }
 };
-
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
-const string WINDOW_TITLE = "Game snake";
 
 void initSDL(SDL_Window* &window, SDL_Renderer* &renderer);
 
@@ -63,8 +104,14 @@ int main(int argc, char* argv[])
      filledRect.h = 50;
      filledRect.w = 50;
 
+     SDL_Rect fillFood;
+     fillFood.h = 50;
+     fillFood.w = 50;
+
 //     waitUntilKeyPressed();
      Snake mySnake;
+     food foodOfSnake;
+
      SDL_Event e;
      char key = 'r';
 
@@ -103,6 +150,15 @@ int main(int argc, char* argv[])
                 return 0;
             }
         }
+
+        if ( mySnake.eat(foodOfSnake) ){
+            foodOfSnake.newPoint();
+        }
+        if ( mySnake.checkDie() == false ){
+            return 0;
+        }
+
+        SDL_Delay(200);
         mySnake.getKey(key);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -112,11 +168,16 @@ int main(int argc, char* argv[])
 
         filledRect.x = mySnake.getX();
         filledRect.y = mySnake.getY();
+        SDL_RenderFillRect(renderer, &filledRect);
 
-        SDL_RenderDrawRect(renderer, &filledRect);
+        SDL_SetRenderDrawColor(renderer, 255, 253, 7, 5);
+        fillFood.x = foodOfSnake.getX();
+        fillFood.y = foodOfSnake.getY();
+
+        SDL_RenderFillRect(renderer, &fillFood);
+
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(200);
      }
 
 //     quitSDL(window, renderer);

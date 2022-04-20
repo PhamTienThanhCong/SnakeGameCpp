@@ -1,5 +1,6 @@
 # depslib dependency file v1.0
-1650440796 source:h:\pet project\snake_with_nghia\snake\main.cpp
+1650445132 source:h:\pet project\snake_with_nghia\snake\main.cpp
 	<iostream>
 	<SDL.h>
+	<cstdlib>
 
