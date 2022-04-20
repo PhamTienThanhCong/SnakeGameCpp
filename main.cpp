@@ -20,14 +20,15 @@ public:
         return y;
     }
     void getKey(char key){
+        int buoc = 50;
         if (key == 'u'){
-            y -= 50;
+            y -= buoc;
         }else if (key == 'd'){
-            y += 50;
+            y += buoc;
         }else if (key == 'l'){
-            x -= 50;
+            x -= buoc;
         }else if (key == 'r'){
-            x += 50;
+            x += buoc;
         }
     }
 };
@@ -63,27 +64,44 @@ int main(int argc, char* argv[])
      filledRect.w = 50;
 
 //     waitUntilKeyPressed();
-     SDL_Event e;
      Snake mySnake;
+     SDL_Event e;
      char key = 'r';
 
      while (true) {
-        if ( SDL_WaitEvent(&e) != 0 && e.type == SDL_KEYDOWN){
-            if (e.key.keysym.sym == SDLK_ESCAPE){
+        if ( SDL_PollEvent(&e)){
+            if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym){
+                    case SDLK_ESCAPE:
+                        {
+                            quitSDL(window, renderer);
+                            return 0;
+                        }
+                    case SDLK_UP:
+                        {
+                            key = 'u';
+                            break;
+                        }
+                    case SDLK_DOWN:
+                        {
+                            key = 'd';
+                            break;
+                        }
+                    case SDLK_LEFT:
+                        {
+                            key = 'l';
+                            break;
+                        }
+                    case SDLK_RIGHT:
+                        {
+                            key = 'r';
+                            break;
+                        }
+                }
+            }else if(e.type == SDL_QUIT){
                 quitSDL(window, renderer);
                 return 0;
-            }else if(e.key.keysym.sym == SDLK_UP){
-                key = 'u';
-            }else if(e.key.keysym.sym == SDLK_DOWN){
-                key = 'd';
-            }else if(e.key.keysym.sym == SDLK_LEFT){
-                key = 'l';
-            }else if(e.key.keysym.sym == SDLK_RIGHT){
-                key = 'r';
             }
-        }else if(e.type == SDL_QUIT){
-            quitSDL(window, renderer);
-            return 0;
         }
         mySnake.getKey(key);
 
