@@ -89,16 +89,42 @@ public:
 
 class snake{
 public:
-    int x = 250;
-    int y = 250;
-    int sizeSnake = 4;
+    int x;
+    int y;
+    int x_before;
+    int y_before;
+    int sizeSnake = 2;
+    deque<int> bodyX;
+    deque<int> bodyY;
+    snake(){
+        x = 250;
+        y = 250;
+        x_before = x;
+        y_before = y;
+        bodyX.push_front(200);
+        bodyX.push_front(175);
+
+        bodyY.push_front(250);
+        bodyY.push_front(250);
+    }
     int getX(){
         return x;
+    }
+    int bodyUpdate(int type){
+        bodyX.push_front(x_before);
+        bodyY.push_front(y_before);
+        if (type == 0){
+            bodyX.pop_back();
+            bodyY.pop_back();
+        }
+//        jump;
     }
     int getY(){
         return y;
     }
     void getKey(char key){
+        x_before = x;
+        y_before = y;
         if (key == 'u'){
             y -= jump;
         }else if (key == 'd'){
@@ -110,34 +136,30 @@ public:
         }
     }
     bool checkDie(){
-        if (x > SCREEN_WIDTH || x < 0 || y > SCREEN_HEIGHT || y < 0){
+        if (x >= SCREEN_WIDTH || x < 0 || y >= SCREEN_HEIGHT || y < 0){
             return false;
+        }
+        for (int i = 0 ; i < sizeSnake ; i++){
+            if ( x == bodyX.at(i) && y == bodyY.at(i) ){
+                return false;
+            }
         }
         return true;
     }
     bool eatFood(food f){
         if (x == f.getX() && y == f.getY()){
             sizeSnake++;
+            bodyUpdate(1);
             return true;
         }
+        bodyUpdate(0);
         return false;
     }
 
 };
 
-void drawBox(int a, int b){
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-
-    SDL_Rect box = {a, b, 25, 25};
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &box);
-    SDL_RenderPresent(renderer);
-}
-
-
-
 int main(int argc, char* argv[]){
+
      SDL_Window* window;
      SDL_Renderer* renderer;
      initSDL(window, renderer);
@@ -147,7 +169,6 @@ int main(int argc, char* argv[]){
      snake mySnake;
      food myFood;
      char key = 'r';
-     drawBox(25, 25);
 
 
      SDL_Rect headSnake;
@@ -157,13 +178,6 @@ int main(int argc, char* argv[]){
      SDL_Rect foodofSnake;
      foodofSnake.h = 25;
      foodofSnake.w = 25;
-
-
-
-
-
-
-
 
      bool checkEventKey = true;
      while (checkEventKey) {
@@ -179,24 +193,13 @@ int main(int argc, char* argv[]){
         mySnake.getKey(key);
 
 
-
-
-
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-
-
-
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 200, 100, 0, 255);
         headSnake.x = mySnake.getX();
         headSnake.y = mySnake.getY();
         SDL_RenderFillRect(renderer, &headSnake);
-
-
-
-
-
 
         if (mySnake.checkDie() == false) return 0;
 
@@ -211,13 +214,16 @@ int main(int argc, char* argv[]){
         foodofSnake.y = myFood.getY();
         SDL_RenderFillRect(renderer, &foodofSnake);
 
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        for (int i = 0 ; i < mySnake.sizeSnake ; i++){
+            headSnake.x = mySnake.bodyX.at(i);
+            headSnake.y = mySnake.bodyY.at(i);
+            SDL_RenderFillRect(renderer, &headSnake);
+        }
 
         SDL_RenderPresent(renderer);
         SDL_Delay(150);
     }
-
-
-
 
     quitSDL(window, renderer);
     return 0;
